@@ -1,0 +1,142 @@
+<div class="p-8 max-w-4xl mx-auto pt-20 md:pt-8">
+  <div class="bg-white rounded-3xl shadow-sm border border-zinc-100 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-zinc-900 p-12 text-white flex flex-col items-center text-center relative">
+      <div class="w-24 h-24 bg-emerald-500 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/20">
+        <mat-icon class="text-4xl">person</mat-icon>
+      </div>
+      
+      @if (isEditing()) {
+        <input type="text" [(ngModel)]="editForm.name" placeholder="Your Name" class="text-3xl font-bold tracking-tight bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-center outline-none focus:bg-white/20 transition-all" />
+      } @else {
+        <h2 class="text-3xl font-bold tracking-tight">{{profile().name || 'Your Name'}}</h2>
+      }
+      
+      <p class="text-zinc-400 mt-1">Member since March 2026</p>
+      
+      <button (click)="isEditing() ? cancelEdit() : startEdit()" class="absolute top-8 right-8 bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-colors">
+        <mat-icon>{{isEditing() ? 'close' : 'edit'}}</mat-icon>
+      </button>
+    </div>
+
+    <!-- Details -->
+    <div class="p-12 space-y-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Age</p>
+          @if (isEditing()) {
+            <input type="number" [(ngModel)]="editForm.age" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+          } @else {
+            <p class="text-xl font-bold text-zinc-800">{{profile().age}} years</p>
+          }
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Height</p>
+          @if (isEditing()) {
+            <input type="number" [(ngModel)]="editForm.height" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+          } @else {
+            <p class="text-xl font-bold text-zinc-800">{{profile().height}} cm</p>
+          }
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Weight</p>
+          @if (isEditing()) {
+            <input type="number" [(ngModel)]="editForm.weight" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+          } @else {
+            <p class="text-xl font-bold text-zinc-800">{{profile().weight}} kg</p>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Gender</p>
+          @if (isEditing()) {
+            <select [(ngModel)]="editForm.gender" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 outline-none">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          } @else {
+            <p class="text-xl font-bold text-zinc-800">{{profile().gender}}</p>
+          }
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Activity Level</p>
+          @if (isEditing()) {
+            <select [(ngModel)]="editForm.activityLevel" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 outline-none">
+              <option value="Sedentary">Sedentary</option>
+              <option value="Light">Light</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Active">Active</option>
+              <option value="Very Active">Very Active</option>
+            </select>
+          } @else {
+            <p class="text-xl font-bold text-zinc-800">{{profile().activityLevel}}</p>
+          }
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <h3 class="text-lg font-bold text-zinc-800">Daily Targets</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="space-y-1">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Calorie Goal</p>
+            @if (isEditing()) {
+              <input type="number" [(ngModel)]="editForm.calorieGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+            } @else {
+              <p class="text-xl font-bold text-zinc-800">{{profile().calorieGoal}} kcal</p>
+            }
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Protein Goal</p>
+            @if (isEditing()) {
+              <input type="number" [(ngModel)]="editForm.proteinGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+            } @else {
+              <p class="text-xl font-bold text-zinc-800">{{profile().proteinGoal}}g</p>
+            }
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Water Goal</p>
+            @if (isEditing()) {
+              <input type="number" [(ngModel)]="editForm.waterGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+            } @else {
+              <p class="text-xl font-bold text-zinc-800">{{profile().waterGoal}}ml</p>
+            }
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Step Goal</p>
+            @if (isEditing()) {
+              <input type="number" [(ngModel)]="editForm.stepGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2" />
+            } @else {
+              <p class="text-xl font-bold text-zinc-800">{{profile().stepGoal}} steps</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Fitness Goals</p>
+        @if (isEditing()) {
+          <textarea [(ngModel)]="editForm.goals" rows="4" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        } @else {
+          <div class="bg-zinc-50 p-6 rounded-2xl border border-zinc-100">
+            <p class="text-zinc-700 leading-relaxed">{{profile().goals}}</p>
+          </div>
+        }
+      </div>
+
+      @if (isEditing()) {
+        <div class="flex gap-4">
+          <button (click)="cancelEdit()" class="flex-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-bold py-4 rounded-2xl transition-all">
+            Cancel
+          </button>
+          <button (click)="saveProfile()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-emerald-500/20">
+            Save Changes
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

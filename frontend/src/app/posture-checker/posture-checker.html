@@ -1,0 +1,110 @@
+<div class="p-8 max-w-4xl mx-auto space-y-8 pt-20 md:pt-8">
+  <header>
+    <h2 class="text-3xl font-bold text-zinc-900">AI Posture Checker</h2>
+    <p class="text-zinc-500">Upload a photo to analyze your posture and get expert feedback.</p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Upload Section -->
+    <div class="space-y-6">
+      <div class="bg-white p-8 rounded-3xl shadow-sm border border-zinc-100 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden group">
+        @if (previewUrl()) {
+          <img [src]="previewUrl()" alt="Posture preview" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity">
+          <div class="relative z-10 text-center space-y-4">
+            <div class="w-20 h-20 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto shadow-xl">
+              <mat-icon class="text-3xl">check_circle</mat-icon>
+            </div>
+            <h3 class="text-xl font-bold text-zinc-900">Photo Uploaded</h3>
+            <button (click)="reset()" class="text-zinc-500 hover:text-zinc-800 font-bold text-sm underline">Upload different photo</button>
+          </div>
+        } @else {
+          <div class="relative z-10 text-center space-y-6">
+            <div class="w-24 h-24 bg-zinc-50 rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-zinc-200 group-hover:border-blue-500 transition-colors">
+              <mat-icon class="text-4xl text-zinc-300 group-hover:text-blue-500 transition-colors">add_a_photo</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-zinc-900">Upload Your Photo</h3>
+              <p class="text-zinc-500 text-sm">Take a photo of your posture while exercising or working.</p>
+            </div>
+            <div class="relative inline-block">
+              <input 
+                type="file" 
+                accept="image/*" 
+                (change)="onFileSelected($event)" 
+                class="absolute inset-0 opacity-0 cursor-pointer z-10"
+              >
+              <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-100">
+                Select Photo
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Analysis Section -->
+    <div class="space-y-6">
+      @if (isAnalyzing()) {
+        <div class="bg-zinc-900 text-white p-8 rounded-3xl h-full flex flex-col items-center justify-center space-y-6 text-center">
+          <div class="relative">
+            <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <mat-icon class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500">auto_awesome</mat-icon>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold">AI is Analyzing...</h3>
+            <p class="text-zinc-400 text-sm mt-2">Checking alignment, balance, and form.</p>
+          </div>
+        </div>
+      } @else if (analysisResult(); as result) {
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-zinc-100 h-full space-y-8 animate-in fade-in slide-in-from-right-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div [class]="result.isCorrect ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'" class="w-12 h-12 rounded-2xl flex items-center justify-center">
+                <mat-icon>{{result.isCorrect ? 'verified' : 'warning'}}</mat-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-zinc-900 text-lg">{{result.isCorrect ? 'Good Posture!' : 'Needs Improvement'}}</h3>
+                <p class="text-xs text-zinc-500 font-medium uppercase tracking-wider">AI Analysis Result</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h4 class="font-bold text-zinc-800 flex items-center gap-2">
+              <mat-icon class="text-blue-500">feedback</mat-icon> Feedback
+            </h4>
+            <p class="text-zinc-600 text-sm leading-relaxed bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
+              {{result.feedback}}
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <h4 class="font-bold text-zinc-800 flex items-center gap-2">
+              <mat-icon class="text-emerald-500">tips_and_updates</mat-icon> Suggestions
+            </h4>
+            <ul class="space-y-3">
+              @for (suggestion of result.suggestions; track $index) {
+                <li class="flex items-start gap-3 text-sm text-zinc-600">
+                  <mat-icon class="text-emerald-500 text-lg mt-0.5">check_circle_outline</mat-icon>
+                  {{suggestion}}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <button (click)="reset()" class="w-full bg-zinc-900 text-white font-bold py-4 rounded-2xl hover:bg-zinc-800 transition-colors">
+            Check Another
+          </button>
+        </div>
+      } @else {
+        <div class="bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-3xl p-8 h-full flex flex-col items-center justify-center text-center space-y-4">
+          <mat-icon class="text-zinc-300 text-6xl">analytics</mat-icon>
+          <div>
+            <h3 class="font-bold text-zinc-400">Awaiting Analysis</h3>
+            <p class="text-zinc-400 text-sm">Upload a photo to see the AI magic.</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

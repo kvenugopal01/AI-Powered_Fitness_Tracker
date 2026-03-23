@@ -1,0 +1,252 @@
+<div class="min-h-screen bg-zinc-50 text-zinc-600 font-sans p-4 md:p-8 space-y-6 pt-20 md:pt-8">
+  <!-- Header -->
+  <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div>
+      <h2 class="text-3xl font-bold text-zinc-900 tracking-tight">
+        Welcome back, <span class="text-emerald-600">{{userProfile().name}}</span>
+      </h2>
+      <p class="text-zinc-500 mt-1">Here's your fitness overview for today.</p>
+    </div>
+    
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-zinc-200 shadow-sm">
+        <button (click)="prevDay()" class="p-2 hover:bg-zinc-50 rounded-lg transition-colors text-zinc-400 hover:text-emerald-600" title="Previous Day">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        
+        <div 
+          class="relative flex items-center group cursor-pointer" 
+          (click)="picker.open()"
+          (keydown.enter)="picker.open()"
+          (keydown.space)="picker.open()"
+          tabindex="0"
+          role="button"
+          aria-label="Open calendar"
+        >
+          <input 
+            matInput 
+            [matDatepicker]="picker" 
+            [value]="selectedDateAsDate" 
+            (dateChange)="onDatePickerChange($event.value)"
+            class="absolute inset-0 opacity-0 w-0 h-0"
+          >
+          <mat-datepicker #picker panelClass="compact-datepicker-panel"></mat-datepicker>
+          <div class="flex items-center gap-2 px-4 py-2 font-semibold text-zinc-700 bg-zinc-50 rounded-lg border border-zinc-200 group-hover:border-emerald-500/50 transition-all">
+            <mat-icon class="text-emerald-600 !text-sm h-4 w-4">calendar_today</mat-icon>
+            <span class="min-w-[100px] text-xs">{{ selectedDate() | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+
+        <button (click)="nextDay()" class="p-2 hover:bg-zinc-50 rounded-lg transition-colors text-zinc-400 hover:text-emerald-600" title="Next Day">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        @if (!isToday()) {
+          <button (click)="goToToday()" class="ml-2 px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-all shadow-sm">
+            Today
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Main Stats -->
+    <div class="lg:col-span-3 space-y-6">
+      <!-- Goal Progress Summary -->
+      <div class="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm relative overflow-hidden group">
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-widest">Daily Goal Progress</h3>
+            <div class="h-[1px] flex-1 mx-8 bg-zinc-100"></div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            @for (stat of stats(); track stat.label) {
+              <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                  <div [ngClass]="stat.bg" class="p-2 rounded-lg">
+                    <mat-icon [ngClass]="stat.color" class="text-sm">{{stat.icon}}</mat-icon>
+                  </div>
+                  <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider">{{stat.label}}</span>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-bold text-zinc-900 tracking-tight">{{stat.current}}</span>
+                    <span class="text-xs text-zinc-400">/ {{stat.target}}{{stat.unit}}</span>
+                  </div>
+                  <div class="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
+                    <div 
+                      class="h-full transition-all duration-1000 ease-out"
+                      [ngClass]="stat.color.replace('text-', 'bg-')"
+                      [style.width.%]="stat.progress"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm hover:border-blue-500/30 transition-all group relative overflow-hidden">
+          <div class="flex items-center justify-between mb-6 relative z-10">
+            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100">
+              <mat-icon>water_drop</mat-icon>
+            </div>
+            <button (click)="logWater(250)" class="text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 px-4 py-2 rounded-lg text-xs font-bold transition-all">
+              + 250ml
+            </button>
+          </div>
+          <h4 class="font-bold text-zinc-900 text-sm mb-1">Hydration</h4>
+          <p class="text-xs text-zinc-500 mb-4">Track your daily water intake</p>
+          <div class="flex items-baseline gap-2">
+            <span class="text-4xl font-bold text-zinc-900 tracking-tight">{{dayData().stats.water}}</span>
+            <span class="text-xs text-zinc-400 font-medium">/ {{userProfile().waterGoal}}ml</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm hover:border-emerald-500/30 transition-all group relative overflow-hidden">
+          <div class="flex items-center justify-between mb-6 relative z-10">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100">
+              <mat-icon>directions_walk</mat-icon>
+            </div>
+            <button 
+              (click)="toggleStepTracking()" 
+              [ngClass]="isTrackingSteps() ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-600' : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-600'"
+              class="hover:text-white border px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2"
+            >
+              <span class="w-2 h-2 rounded-full" [ngClass]="isTrackingSteps() ? 'bg-red-500 animate-pulse' : 'bg-zinc-300'"></span>
+              {{ isTrackingSteps() ? 'Stop Tracking' : 'Track Movement' }}
+            </button>
+          </div>
+          <h4 class="font-bold text-zinc-900 text-sm mb-1">Activity</h4>
+          <p class="text-xs text-zinc-500 mb-4">Step count tracked via device sensors</p>
+          <div class="flex items-baseline gap-2">
+            <span class="text-4xl font-bold text-zinc-900 tracking-tight">{{dayData().stats.steps}}</span>
+            <span class="text-xs text-zinc-400 font-medium">/ {{userProfile().stepGoal}} steps</span>
+          </div>
+          @if (trackingError()) {
+            <p class="mt-2 text-[10px] text-red-500 font-medium">{{trackingError()}}</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar / Insights -->
+    <div class="space-y-6">
+      <!-- Quick Actions -->
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6">Quick Actions</h3>
+        <div class="space-y-3">
+          <button routerLink="/workout-planner" class="w-full flex items-center justify-between p-4 bg-zinc-50 hover:bg-emerald-50 border border-zinc-100 rounded-xl transition-all group">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-white rounded-lg shadow-sm">
+                <mat-icon class="text-emerald-600 text-sm">fitness_center</mat-icon>
+              </div>
+              <span class="font-bold text-xs text-zinc-700 group-hover:text-emerald-700">Plan Workout</span>
+            </div>
+            <mat-icon class="text-zinc-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all">chevron_right</mat-icon>
+          </button>
+          <button routerLink="/nutrition-tracker" class="w-full flex items-center justify-between p-4 bg-zinc-50 hover:bg-orange-50 border border-zinc-100 rounded-xl transition-all group">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-white rounded-lg shadow-sm">
+                <mat-icon class="text-orange-600 text-sm">restaurant</mat-icon>
+              </div>
+              <span class="font-bold text-xs text-zinc-700 group-hover:text-orange-700">Log Nutrition</span>
+            </div>
+            <mat-icon class="text-zinc-300 group-hover:text-orange-600 group-hover:translate-x-1 transition-all">chevron_right</mat-icon>
+          </button>
+          <button (click)="openGoalEditor()" class="w-full flex items-center justify-between p-4 bg-zinc-50 hover:bg-blue-50 border border-zinc-100 rounded-xl transition-all group">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-white rounded-lg shadow-sm">
+                <mat-icon class="text-blue-600 text-sm">settings</mat-icon>
+              </div>
+              <span class="font-bold text-xs text-zinc-700 group-hover:text-blue-700">Adjust Goals</span>
+            </div>
+            <mat-icon class="text-zinc-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all">chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Insights -->
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm relative overflow-hidden">
+        <div class="flex items-center gap-2 text-emerald-600 mb-6 relative z-10">
+          <mat-icon class="text-sm">auto_awesome</mat-icon>
+          <h3 class="font-bold uppercase text-xs tracking-widest">AI Insights</h3>
+        </div>
+        <div class="space-y-6 relative z-10">
+          @for (insight of insights; track insight.title) {
+            <div class="space-y-2 border-l-2 border-emerald-100 pl-4 py-1 hover:border-emerald-500 transition-colors">
+              <h4 class="font-bold text-zinc-900 text-xs">{{insight.title}}</h4>
+              <p class="text-xs text-zinc-500 leading-relaxed">{{insight.description}}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goal Editor Modal -->
+  @if (isEditingGoals()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
+      <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="p-6 border-b border-zinc-100 flex items-center justify-between">
+          <h3 class="font-bold text-zinc-900 text-lg">Adjust Your Goals</h3>
+          <button (click)="isEditingGoals.set(false)" class="p-2 hover:bg-zinc-100 rounded-lg transition-colors text-zinc-400">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        
+        <div class="p-8 space-y-6">
+          <div class="space-y-2">
+            <label for="calGoal" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Daily Calorie Target</label>
+            <input id="calGoal" type="number" [(ngModel)]="tempGoals().calorieGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold">
+          </div>
+          <div class="space-y-2">
+            <label for="protGoal" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Protein Target (g)</label>
+            <input id="protGoal" type="number" [(ngModel)]="tempGoals().proteinGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold">
+          </div>
+          <div class="space-y-2">
+            <label for="watGoal" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Water Target (ml)</label>
+            <input id="watGoal" type="number" [(ngModel)]="tempGoals().waterGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold">
+          </div>
+          <div class="space-y-2">
+            <label for="stGoal" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Daily Step Target</label>
+            <input id="stGoal" type="number" [(ngModel)]="tempGoals().stepGoal" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold">
+          </div>
+          <div class="space-y-2">
+            <label for="gender" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Gender</label>
+            <select id="gender" [(ngModel)]="tempGoals().gender" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label for="activityLevel" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Activity Level</label>
+            <select id="activityLevel" [(ngModel)]="tempGoals().activityLevel" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold">
+              <option value="Sedentary">Sedentary</option>
+              <option value="Light">Light</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Active">Active</option>
+              <option value="Very Active">Very Active</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label for="goals" class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Fitness Goals</label>
+            <textarea id="goals" [(ngModel)]="tempGoals().goals" rows="3" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-zinc-900 font-bold"></textarea>
+          </div>
+        </div>
+
+        <div class="p-6 bg-zinc-50 border-t border-zinc-100 flex gap-4">
+          <button (click)="isEditingGoals.set(false)" class="flex-1 px-4 py-3 text-zinc-500 font-bold rounded-xl hover:bg-zinc-200 transition-all">Cancel</button>
+          <button (click)="saveGoals()" class="flex-1 px-4 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

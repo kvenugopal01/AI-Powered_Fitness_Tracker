@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  @apply antialiased text-zinc-900 bg-zinc-50;
+}
+
+/* Compact and Opaque Datepicker */
+.mat-datepicker-content {
+  @apply shadow-2xl rounded-2xl border border-zinc-200;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  overflow: hidden;
+}
+
+.compact-datepicker-panel {
+  background-color: #ffffff !important;
+  border-radius: 1rem !important;
+}
+
+.mat-calendar {
+  width: 240px !important;
+  height: 280px !important;
+}
+
+.mat-calendar-content {
+  padding: 0 4px 4px 4px !important;
+}
+
+.mat-calendar-header {
+  padding: 2px 4px 0 4px !important;
+}
+
+.mat-calendar-table-header th {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  color: #71717a !important; /* zinc-500 */
+}
+
+.mat-calendar-body-cell-content {
+  font-size: 10px !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+}
+
+.mat-calendar-body-label {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.mat-calendar-period-button {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}

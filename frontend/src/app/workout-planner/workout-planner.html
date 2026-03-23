@@ -1,0 +1,214 @@
+<div class="p-8 max-w-4xl mx-auto space-y-8 pt-20 md:pt-8">
+  <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div>
+      <h2 class="text-3xl font-bold text-zinc-900">Workout Planner</h2>
+      <p class="text-zinc-500">Design your routine for {{ isToday() ? 'today' : selectedDate() }}.</p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button 
+        (click)="generateAIWorkout()" 
+        [disabled]="aiGenerating()"
+        class="flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <mat-icon [class.animate-pulse]="aiGenerating()">auto_awesome</mat-icon>
+        {{ aiGenerating() ? 'Generating...' : 'Generate AI Workout' }}
+      </button>
+      
+      <!-- Date Navigation -->
+      <div class="flex items-center gap-1 bg-white p-1 rounded-2xl shadow-sm border border-zinc-100">
+        <button (click)="prevDay()" class="p-1.5 hover:bg-zinc-50 rounded-xl transition-colors text-zinc-600" title="Previous Day">
+          <mat-icon class="text-lg">chevron_left</mat-icon>
+        </button>
+        
+        <div 
+          class="relative flex items-center group cursor-pointer" 
+          (click)="picker.open()"
+          (keydown.enter)="picker.open()"
+          (keydown.space)="picker.open()"
+          tabindex="0"
+          role="button"
+          aria-label="Open calendar"
+        >
+          <input 
+            matInput 
+            [matDatepicker]="picker" 
+            [value]="selectedDateAsDate" 
+            (dateChange)="onDatePickerChange($event.value)"
+            class="absolute inset-0 opacity-0 w-0 h-0"
+          >
+          <mat-datepicker #picker panelClass="compact-datepicker-panel"></mat-datepicker>
+          <div class="flex items-center gap-2 px-3 py-1.5 font-bold text-zinc-900 bg-zinc-50 rounded-xl border border-transparent group-hover:border-zinc-200 transition-all text-sm">
+            <mat-icon class="text-blue-500 text-xs">calendar_today</mat-icon>
+            <span class="min-w-[90px]">{{ selectedDate() | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+
+        <button (click)="nextDay()" class="p-1.5 hover:bg-zinc-50 rounded-xl transition-colors text-zinc-600" title="Next Day">
+          <mat-icon class="text-lg">chevron_right</mat-icon>
+        </button>
+
+      @if (!isToday()) {
+        <button (click)="goToToday()" class="ml-1 px-3 py-1.5 bg-blue-500 text-white text-[10px] font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm">
+          Today
+        </button>
+      }
+    </div>
+  </div>
+</header>
+
+  <!-- Add Exercise Form -->
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-zinc-100">
+    <h3 class="font-bold text-zinc-800 mb-4">Add New Exercise</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="md:col-span-2">
+        <label for="exName" class="block text-xs font-bold text-zinc-400 uppercase mb-1">Exercise Name</label>
+        <input id="exName" type="text" [ngModel]="newExerciseName()" (ngModelChange)="newExerciseName.set($event)" placeholder="e.g. Bench Press" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+      </div>
+      <div>
+        <label for="exSets" class="block text-xs font-bold text-zinc-400 uppercase mb-1">Sets</label>
+        <input id="exSets" type="number" [ngModel]="newExerciseSets()" (ngModelChange)="newExerciseSets.set($event)" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+      </div>
+      <div>
+        <label for="exReps" class="block text-xs font-bold text-zinc-400 uppercase mb-1">Reps/Secs</label>
+        <input id="exReps" type="number" [ngModel]="newExerciseReps()" (ngModelChange)="newExerciseReps.set($event)" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+      </div>
+    </div>
+    <button (click)="addExercise()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+      <mat-icon>add</mat-icon> Add to Routine
+    </button>
+  </div>
+
+  <!-- Exercise List -->
+  <div class="space-y-4">
+    <h3 class="font-bold text-zinc-800 flex items-center gap-2">
+      <mat-icon class="text-blue-500">list_alt</mat-icon> Your Routine
+    </h3>
+    
+    @for (ex of workouts(); track ex.id) {
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-zinc-100 flex items-center justify-between group" [ngClass]="{'opacity-60': ex.completed}">
+        <div class="flex items-center gap-4">
+          <button (click)="toggleComplete(ex.id)" class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors"
+                  [ngClass]="ex.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-300 hover:border-emerald-500'">
+            @if (ex.completed) { <mat-icon class="text-xs">check</mat-icon> }
+          </button>
+          <div>
+            <h4 class="font-bold" [ngClass]="ex.completed ? 'text-zinc-400 line-through' : 'text-zinc-800'">{{ex.name}}</h4>
+            <p class="text-xs text-zinc-500">{{ex.exercises[0]}}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="openGuide(ex)" class="p-2 text-blue-500 hover:bg-blue-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold">
+            <mat-icon class="text-sm">auto_awesome</mat-icon> Generate Workflow
+          </button>
+          <button (click)="removeExercise(ex.id)" class="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <div class="text-center py-12 bg-zinc-50 rounded-3xl border-2 border-dashed border-zinc-200">
+        <mat-icon class="text-zinc-300 text-5xl mb-2">fitness_center</mat-icon>
+        <p class="text-zinc-400">No exercises added yet. Start planning!</p>
+      </div>
+    }
+  </div>
+
+  <!-- Exercise Guide Modal -->
+  @if (showGuide()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center">
+              <mat-icon>fitness_center</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-zinc-900">{{selectedWorkout()?.name}}</h3>
+              <p class="text-xs text-zinc-500 font-medium uppercase tracking-wider">Exercise Workflow & Timer</p>
+            </div>
+          </div>
+          <button (click)="closeGuide()" class="p-2 hover:bg-zinc-200 rounded-full transition-colors">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto space-y-8">
+          <!-- Timer Section -->
+          <div class="bg-zinc-900 rounded-2xl p-8 text-center space-y-4">
+            <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Exercise Timer</p>
+            <div class="text-6xl font-mono font-bold text-white tracking-tighter">
+              {{formatTime(timerSeconds())}}
+            </div>
+            <div class="flex items-center justify-center gap-4">
+              @if (!isTimerRunning()) {
+                <button (click)="startTimer()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2">
+                  <mat-icon>play_arrow</mat-icon> Start
+                </button>
+              } @else {
+                <button (click)="stopTimer()" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2">
+                  <mat-icon>pause</mat-icon> Pause
+                </button>
+              }
+              <button (click)="resetTimer()" class="bg-zinc-700 hover:bg-zinc-600 text-white px-6 py-3 rounded-xl font-bold transition-all">
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Instructions Section -->
+          <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Recommended Sets</p>
+                <p class="text-xl font-bold text-blue-900">{{recommendedSets() || '3'}}</p>
+              </div>
+              <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Recommended Reps</p>
+                <p class="text-xl font-bold text-emerald-900">{{recommendedReps() || '12'}}</p>
+              </div>
+            </div>
+
+            <h4 class="font-bold text-zinc-900 flex items-center gap-2">
+              <mat-icon class="text-blue-500">info</mat-icon> How to Perform
+            </h4>
+            
+            @if (guideLoading()) {
+              <div class="flex flex-col items-center justify-center py-12 space-y-4">
+                <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-zinc-500 text-sm animate-pulse">AI is generating your guide...</p>
+              </div>
+            } @else {
+              <div class="text-zinc-600 text-sm leading-relaxed whitespace-pre-wrap bg-zinc-50 p-6 rounded-2xl border border-zinc-100">
+                {{exerciseInstructions()}}
+              </div>
+              
+              @if (youtubeLink()) {
+                <div class="pt-6 border-t border-zinc-100">
+                  <a [href]="youtubeLink()" target="_blank" class="flex items-center justify-between p-4 bg-red-50 rounded-2xl border border-red-100 group hover:bg-red-100 transition-all">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-200">
+                        <mat-icon>play_circle_filled</mat-icon>
+                      </div>
+                      <div>
+                        <p class="font-bold text-red-900">Watch on YouTube</p>
+                        <p class="text-xs text-red-700">See a video demonstration</p>
+                      </div>
+                    </div>
+                    <mat-icon class="text-red-400 group-hover:translate-x-1 transition-transform">open_in_new</mat-icon>
+                  </a>
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-zinc-100 bg-zinc-50">
+          <button (click)="closeGuide()" class="w-full bg-zinc-900 text-white font-bold py-4 rounded-2xl hover:bg-zinc-800 transition-colors">
+            Got it, let's go!
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

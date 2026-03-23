@@ -1,0 +1,5 @@
+{
+  "name": "BFit – AI Powered Fitness Assistant",
+  "description": "A comprehensive AI-driven fitness companion for workouts, nutrition tracking, and health insights.",
+  "requestFramePermissions": ["accelerometer", "gyroscope", "camera", "microphone"]
+}

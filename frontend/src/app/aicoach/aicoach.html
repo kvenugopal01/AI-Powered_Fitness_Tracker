@@ -1,0 +1,66 @@
+<div class="h-full flex flex-col bg-zinc-50">
+  <header class="bg-white border-b border-zinc-200 p-6 flex items-center justify-between pt-16 md:pt-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+        <mat-icon class="text-emerald-600">psychology</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">AI Fitness Coach</h2>
+        <p class="text-xs text-emerald-600 font-medium flex items-center gap-1">
+          <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Online
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto p-6 space-y-6">
+    @for (msg of messages(); track msg.timestamp) {
+      <div class="flex" [ngClass]="{'justify-end': msg.role === 'user'}">
+        <div class="max-w-[80%] flex gap-3" [ngClass]="{'flex-row-reverse': msg.role === 'user'}">
+          <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
+               [ngClass]="msg.role === 'ai' ? 'bg-emerald-100 text-emerald-600' : 'bg-zinc-800 text-white'">
+            <mat-icon class="text-sm">{{msg.role === 'ai' ? 'smart_toy' : 'person'}}</mat-icon>
+          </div>
+          <div class="p-4 rounded-2xl shadow-sm"
+               [ngClass]="msg.role === 'ai' ? 'bg-white text-zinc-800 rounded-tl-none' : 'bg-emerald-500 text-white rounded-tr-none'">
+            <p class="whitespace-pre-wrap leading-relaxed">{{msg.text}}</p>
+            <span class="text-[10px] mt-2 block opacity-60">{{msg.timestamp | date:'shortTime'}}</span>
+          </div>
+        </div>
+      </div>
+    }
+    @if (isLoading()) {
+      <div class="flex">
+        <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-2">
+          <div class="flex gap-1">
+            <span class="w-1.5 h-1.5 bg-zinc-300 rounded-full animate-bounce"></span>
+            <span class="w-1.5 h-1.5 bg-zinc-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 bg-zinc-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+          </div>
+          <span class="text-xs text-zinc-400">Coach is thinking...</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="p-6 bg-white border-t border-zinc-200">
+    <form (submit)="sendMessage()" class="max-w-4xl mx-auto relative">
+      <input
+        type="text"
+        [(ngModel)]="userInput"
+        name="userInput"
+        placeholder="Ask about workouts, diet, or health tips..."
+        class="w-full bg-zinc-100 border-none rounded-2xl px-6 py-4 pr-16 focus:ring-2 focus:ring-emerald-500 transition-all outline-none"
+        [disabled]="isLoading()"
+      />
+      <button
+        type="submit"
+        [disabled]="!userInput().trim() || isLoading()"
+        class="absolute right-2 top-2 bottom-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-zinc-300 text-white px-4 rounded-xl transition-colors"
+      >
+        <mat-icon>send</mat-icon>
+      </button>
+    </form>
+    <p class="text-center text-[10px] text-zinc-400 mt-4 uppercase tracking-widest">Powered by Google Gemini AI</p>
+  </div>
+</div>
